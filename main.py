@@ -29,7 +29,7 @@ dataGRID = tk.Frame(root)
 dataGRID.columnconfigure(0,weight=1)
 dataGRID.columnconfigure(1,weight=1)#con el weight tanto en la columna como en la fila, en este caso cada celda va a ocupar 1/4 del espacio
 dataGRID.rowconfigure(0,weight=1)
-dataGRID.rowconfigure(1,weight=1)
+#dataGRID.rowconfigure(1,weight=1)
 
 #esto sirve mas que nada para cuando ajustas el tamaño de la ventana
 
@@ -44,6 +44,7 @@ l2.grid(row=0, column=1, sticky='nsew')
 l22 = tk.Label(dataGRID,text="COSENO", font=('Arial',16))
 l22.grid(row=0,column=1, sticky='n')
 
+'''
 l3 = tk.Label(dataGRID)
 l3.grid(row=1, column=0, sticky='nsew')
 l33 = tk.Label(dataGRID,text="TANGETE", font=('Arial',16))
@@ -53,7 +54,7 @@ l4 = tk.Label(dataGRID)
 l4.grid(row=1, column=1, sticky='nsew')
 l44 = tk.Label(dataGRID,text="ARCOTANGETE", font=('Arial',16))
 l44.grid(row=1,column=1, sticky='n')
-
+'''
 
 fig1,ax1 = plt.subplots()
 x1 = np.linspace(0,2*np.pi,100)
@@ -62,6 +63,7 @@ canva1 = FigureCanvasTkAgg(fig1,master=l1)
 canva1.draw()
 canva1.get_tk_widget().pack()
 
+'''
 fig2,ax2 = plt.subplots()
 x2 = np.linspace(0,2*np.pi,100)
 ax2.plot(x2,np.cos(x2))
@@ -82,6 +84,7 @@ ax4.plot(x4,np.arctan(x4))
 canva4 = FigureCanvasTkAgg(fig4,master=l4)
 canva4.draw()
 canva4.get_tk_widget().pack()
+'''
 
 dataGRID.pack(fill='both', expand=True)
 root.mainloop()
