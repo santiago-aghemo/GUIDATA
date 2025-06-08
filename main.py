@@ -25,6 +25,8 @@ root = tk.Tk() #este es la base de todo, sobre esta ventana van a estar todos lo
 
 root.geometry("1000x1000")#dimensiones
 
+#LO VAMOS A HACER CON CLASES
+
 dataGRID = tk.Frame(root)
 dataGRID.columnconfigure(0,weight=1)
 dataGRID.columnconfigure(1,weight=1)#con el weight tanto en la columna como en la fila, en este caso cada celda va a ocupar 1/4 del espacio
