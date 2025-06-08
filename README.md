@@ -3,6 +3,7 @@ Basicamente aca estara todo el progreso de la interfaz destinada a los datos del
 BUENO aca ya estamos desde el git en la terminal
 
 puntos a tener en cuenta [ ]
+
 -investigar librerias de python sobre inerfaces graficas [x]
 
 -investigar sobre como integrar graficos en la gui [x]
