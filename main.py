@@ -19,74 +19,77 @@ from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg #esto es para co
 import matplotlib.pyplot as plt #funciones para plotear
 import numpy as np #numpy, para tener funciones matematicas
 import time
+import serial #leer monitor serie
+
+class GUI:
+    def __init__(self,port='COM3', baudrate=9600):
+        self.root = tk.Tk() #este es la base de todo, sobre esta ventana van a estar todos los componentes
+        self.ser = serial.Serial(port=port, baudrate=baudrate)
+
+        #configuracion de la tabla que va a mostrar los datos
+        self.dataGRID=tk.Frame(self.root)
+
+        self.dataGRID.columnconfigure(0,weight=1)
+        self.dataGRID.columnconfigure(1,weight=1)
+        self.dataGRID.rowconfigure(0,weight=1)
+
+        self.l1=tk.Label(self.dataGRID)
+        self.l1.grid(row=0,column=0,sticky='nsew')
+
+        self.l2=tk.Label(self.dataGRID, text=str(self.ser.readline().decode().strip()), font=('Arial',16))
+        self.l2.grid(row=0,column=1,sticky='nsew')
+        self.l2T=tk.Label(self.dataGRID,text="DATO ACTUAL")
+        self.l2T.grid(row=0,column=1, sticky='n')
+        
+        self.xdata, self.yadata = [],[] #iniciamos los datos de x e y ambos en cero
+        self.counter=0
+
+        #creamos el grafico
+        self.fig1,self.ax1 = plt.subplots()
+        self.ax1.plot(self.counter,float(self.ser.readline().decode().strip()))
+        self.canva1 = FigureCanvasTkAgg(self.fig1,master=self.root)
+        self.canva1.draw()
+        self.canva1.get_tk_widget().pack()
+        
+
+        
+        self.actualizar()
+        self.dataGRID.pack(fill='both', expand=True)
+        self.root.mainloop()
+
+    def actualizar(self):
+
+        #actualizar grafico
+        valueRAW=self.ser.readline().decode().strip()#leer monitor serie
+        valorF=float(valueRAW)#pasar valores del monitor serie a float
+
+        self.xdata.append(self.counter)#agregamos a los valores de x el segundo actual(counter)
+        self.yadata.append(valorF)#agregamos el ultimo valor leido del monitor serie a los valores de y
+
+        self.ax1.clear()#limpiamos los valores actuales
+
+        #esto es para mantener el grafico siempre mostrando una porcion pequeña de datos
+        if self.counter < 30:
+            self.ax1.set_xlim(1, 30)
+        else:
+            self.ax1.set_xlim(self.counter - 29, self.counter)
+
+        #titulo del grafico
+        self.ax1.set_title("GRAFICO")
+
+        #trazamos el grafico
+        self.ax1.plot(self.xdata,self.yadata,'b-o')
+
+        self.canva1.draw()
+
+        self.counter+=1#sumamos uno al contador 
+
+        #actualizar el valor mostrado en vivo
+        self.l2.config(text=str(valueRAW))
+
+        #self.dataGRID.pack(fill='both', expand=True)
+       
+        self.root.after(1000,self.actualizar)#repetir cada 1 segundo
 
 
-root = tk.Tk() #este es la base de todo, sobre esta ventana van a estar todos los componentes
-
-root.geometry("1000x1000")#dimensiones
-
-#LO VAMOS A HACER CON CLASES
-
-dataGRID = tk.Frame(root)
-dataGRID.columnconfigure(0,weight=1)
-dataGRID.columnconfigure(1,weight=1)#con el weight tanto en la columna como en la fila, en este caso cada celda va a ocupar 1/4 del espacio
-dataGRID.rowconfigure(0,weight=1)
-#dataGRID.rowconfigure(1,weight=1)
-
-#esto sirve mas que nada para cuando ajustas el tamaño de la ventana
-
-
-l1 = tk.Label(dataGRID)
-l1.grid(row=0, column=0, sticky='nsew')
-l11 = tk.Label(dataGRID,text="SENO", font=('Arial',16))
-l11.grid(row=0,column=0, sticky='n')
-
-l2 = tk.Label(dataGRID)
-l2.grid(row=0, column=1, sticky='nsew')
-l22 = tk.Label(dataGRID,text="COSENO", font=('Arial',16))
-l22.grid(row=0,column=1, sticky='n')
-
-'''
-l3 = tk.Label(dataGRID)
-l3.grid(row=1, column=0, sticky='nsew')
-l33 = tk.Label(dataGRID,text="TANGETE", font=('Arial',16))
-l33.grid(row=1,column=0, sticky='n')
-
-l4 = tk.Label(dataGRID)
-l4.grid(row=1, column=1, sticky='nsew')
-l44 = tk.Label(dataGRID,text="ARCOTANGETE", font=('Arial',16))
-l44.grid(row=1,column=1, sticky='n')
-'''
-
-fig1,ax1 = plt.subplots()
-x1 = np.linspace(0,2*np.pi,100)
-ax1.plot(x1,np.sin(x1))
-canva1 = FigureCanvasTkAgg(fig1,master=l1)
-canva1.draw()
-canva1.get_tk_widget().pack()
-
-'''
-fig2,ax2 = plt.subplots()
-x2 = np.linspace(0,2*np.pi,100)
-ax2.plot(x2,np.cos(x2))
-canva2 = FigureCanvasTkAgg(fig2,master=l2)
-canva2.draw()
-canva2.get_tk_widget().pack()
-
-fig3,ax3 = plt.subplots()
-x3 = np.linspace(0,2*np.pi,100)
-ax3.plot(x3,np.tan(x3))
-canva3 = FigureCanvasTkAgg(fig3,master=l3)
-canva3.draw()
-canva3.get_tk_widget().pack()
-
-fig4,ax4 = plt.subplots()
-x4 = np.linspace(0,2*np.pi,100)
-ax4.plot(x4,np.arctan(x4))
-canva4 = FigureCanvasTkAgg(fig4,master=l4)
-canva4.draw()
-canva4.get_tk_widget().pack()
-'''
-
-dataGRID.pack(fill='both', expand=True)
-root.mainloop()
+GUI()
