@@ -24,15 +24,15 @@ import serial #leer monitor serie
 class GUI:
     def __init__(self,port='COM3', baudrate=9600):
         self.root = tk.Tk() #este es la base de todo, sobre esta ventana van a estar todos los componentes
+        #self.root.geometry('1000x1000')
         self.ser = serial.Serial(port=port, baudrate=baudrate)
 
         #configuracion de la tabla que va a mostrar los datos
         self.dataGRID=tk.Frame(self.root)
 
-        self.dataGRID.columnconfigure(0,weight=1)
+        self.dataGRID.columnconfigure(0,weight=3)
         self.dataGRID.columnconfigure(1,weight=1)
-        self.dataGRID.rowconfigure(0,weight=1)
-
+        self.dataGRID.rowconfigure(0, weight=1)
         self.l1=tk.Label(self.dataGRID)
         self.l1.grid(row=0,column=0,sticky='nsew')
 
@@ -54,7 +54,7 @@ class GUI:
 
         
         self.actualizar()
-        self.dataGRID.pack(fill='both', expand=True)
+        self.dataGRID.pack(fill='both',expand=True)
         self.root.mainloop()
 
     def actualizar(self):
@@ -76,6 +76,9 @@ class GUI:
 
         #titulo del grafico
         self.ax1.set_title("GRAFICO")
+        #nombres a los ejes
+        self.ax1.set_xlabel("Segundos")
+        self.ax1.set_ylabel("Cm")
 
         #trazamos el grafico
         self.ax1.plot(self.xdata,self.yadata,'b-o')
