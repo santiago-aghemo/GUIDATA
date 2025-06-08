@@ -36,7 +36,7 @@ class GUI:
         self.l1=tk.Label(self.dataGRID)
         self.l1.grid(row=0,column=0,sticky='nsew')
 
-        self.l2=tk.Label(self.dataGRID, text=str(self.ser.readline().decode().strip()), font=('Arial',16))
+        self.l2=tk.Label(self.dataGRID,text=str(self.ser.readline().decode().strip()), font=('Arial',16))
         self.l2.grid(row=0,column=1,sticky='nsew')
         self.l2T=tk.Label(self.dataGRID,text="DATO ACTUAL")
         self.l2T.grid(row=0,column=1, sticky='n')
@@ -47,7 +47,7 @@ class GUI:
         #creamos el grafico
         self.fig1,self.ax1 = plt.subplots()
         self.ax1.plot(self.counter,float(self.ser.readline().decode().strip()))
-        self.canva1 = FigureCanvasTkAgg(self.fig1,master=self.root)
+        self.canva1 = FigureCanvasTkAgg(self.fig1,master=self.l1)
         self.canva1.draw()
         self.canva1.get_tk_widget().pack()
         
