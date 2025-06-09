@@ -113,10 +113,13 @@ class GUI:
             self.grabarStatus=1
         else:#si ya se inicio una grabacion, alertar al usuario
             messagebox.showinfo(message="YA SE HA INICIADO UNA GRABACION")
+
     def grabar(self, value,time):#grabar dato actual
         with open(self.nombreArchivo,'a') as archivo:
             archivo.write(time+': '+str(value)+'\n')
+
     def parar_grabacion(self):#cortar la grabacion
         self.nombreArchivo = None
         self.grabarStatus=0
+        
 GUI()
