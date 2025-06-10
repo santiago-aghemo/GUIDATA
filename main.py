@@ -37,13 +37,27 @@ class GUI:
         self.dataGRID.columnconfigure(0,weight=3)
         self.dataGRID.columnconfigure(1,weight=1)
         self.dataGRID.rowconfigure(0, weight=1)
-        self.l1=tk.Label(self.dataGRID)
-        self.l1.grid(row=0,column=0,sticky='nsew')
+        self.dataGRID.rowconfigure(1, weight=1)
 
-        self.l2=tk.Label(self.dataGRID,text=str(self.ser.readline().decode().strip()), font=('Arial',16))
-        self.l2.grid(row=0,column=1,sticky='nsew')
-        self.l2T=tk.Label(self.dataGRID,text="DATO ACTUAL")
-        self.l2T.grid(row=0,column=1, sticky='n')
+
+        self.g1=tk.Label(self.dataGRID)
+        self.g1.grid(row=0,column=0,sticky='nsew')
+        
+        self.g2=tk.Label(self.dataGRID)
+        self.g2.grid(row=1, column=0, sticky='nsew')
+
+
+        self.d1=tk.Label(self.dataGRID,text=" ", font=('Arial',16))
+        self.d1.grid(row=0,column=1,sticky='nsew')
+
+        self.d1T=tk.Label(self.dataGRID,text="DATO ACTUAL")
+        self.d1T.grid(row=0,column=1, sticky='n')
+
+        self.d2=tk.Label(self.dataGRID,text=" ", font=('Arial',16))
+        self.d2.grid(row=1,column=1,sticky='nsew')
+
+        self.d2T=tk.Label(self.dataGRID,text="DATO ACTUAL")
+        self.d2T.grid(row=1,column=1,sticky='n')
 
         #vamos a hacer los botones para iniciar/parar la grabacion de datos
         self.bR=tk.Button(self.root, text="GRABAR", font=('Arial', 16), command=lambda: self.iniciar_grabar(f"session_{time.strftime('%Y-%m-%d_%H-%M-%S')}.txt", time.strftime('%Y-%m-%d_%H-%M-%S')))
@@ -51,17 +65,23 @@ class GUI:
         
         self.bS=tk.Button(self.root, text="STOP", font=('Arial', 16), command=self.parar_grabacion)
         self.bS.pack(anchor='sw')
-        self.xdata, self.yadata = [],[] #iniciamos los datos de x e y ambos en cero
+        self.xdata1, self.yadata1 = [],[]
+        self.xdata2, self.yadata2 = [],[] #iniciamos los datos de x e y ambos en cero
         self.counter=0
 
-        #creamos el grafico
+        #creamos el grafico 1
         self.fig1,self.ax1 = plt.subplots()
-        self.ax1.plot(self.counter,float(self.ser.readline().decode().strip()))
-        self.canva1 = FigureCanvasTkAgg(self.fig1,master=self.l1)
+        self.ax1.plot(self.counter,float(0))
+        self.canva1 = FigureCanvasTkAgg(self.fig1,master=self.g1)
         self.canva1.draw()
         self.canva1.get_tk_widget().pack()
         
-
+        #creamos el grafico 2
+        self.fig2,self.ax2 = plt.subplots()
+        self.ax2.plot(self.counter, float(0))
+        self.canva2 = FigureCanvasTkAgg(self.fig2,master=self.g2)
+        self.canva2.draw()
+        self.canva2.get_tk_widget().pack()
         
         self.actualizar()
         self.dataGRID.pack(fill='both',expand=True)
@@ -71,11 +91,20 @@ class GUI:
 
         #actualizar grafico
         valueRAW=self.ser.readline().decode().strip()#leer monitor serie
-        valorF=float(valueRAW)#pasar valores del monitor serie a float
+        valorS=str(valueRAW)#pasar valores del monitor serie a float
         valueTIME=str(time.strftime('%Y-%m-%d_%H-%M-%S'))#registramos cuando llego el valor
 
-        self.xdata.append(self.counter)#agregamos a los valores de x el segundo actual(counter)
-        self.yadata.append(valorF)#agregamos el ultimo valor leido del monitor serie a los valores de y
+        
+        partes = valorS.split()
+        tiempoPulso = float(partes[0])
+        dstMedida = float(partes[1])
+
+        
+
+
+        #------------------ACTUALIZACION Y DETALLES DEL GRAFICO 1-----------------------------------
+        self.xdata1.append(self.counter)#agregamos a los valores de x el segundo actual(counter)
+        self.yadata1.append(tiempoPulso)#agregamos el ultimo valor leido del monitor serie a los valores de y
 
         self.ax1.clear()#limpiamos los valores actuales
 
@@ -89,17 +118,39 @@ class GUI:
         self.ax1.set_title("GRAFICO")
         #nombres a los ejes
         self.ax1.set_xlabel("Segundos")
-        self.ax1.set_ylabel("Cm")
 
         #trazamos el grafico
-        self.ax1.plot(self.xdata,self.yadata,'b-o')
+        self.ax1.plot(self.xdata1,self.yadata1,'b-o')
 
         self.canva1.draw()
+
+        #------------------ACTUALIZACION Y DETALLES DEL GRAFICO 2-----------------------------------
+        self.xdata2.append(self.counter)#agregamos a los valores de x el segundo actual(counter)
+        self.yadata2.append(dstMedida)#agregamos el ultimo valor leido del monitor serie a los valores de y
+
+        self.ax2.clear()#limpiamos los valores actuales
+
+        #esto es para mantener el grafico siempre mostrando una porcion pequeña de datos
+        if self.counter < 30:
+            self.ax2.set_xlim(1, 30)
+        else:
+            self.ax2.set_xlim(self.counter - 29, self.counter)
+
+        #titulo del grafico
+        self.ax2.set_title("GRAFICO")
+        #nombres a los ejes
+        self.ax2.set_xlabel("Segundos")
+
+        #trazamos el grafico
+        self.ax2.plot(self.xdata2,self.yadata2,'b-o')
+
+        self.canva2.draw()
 
         self.counter+=1#sumamos uno al contador 
 
         #actualizar el valor mostrado en vivo
-        self.l2.config(text=str(valueRAW))
+        self.d1.config(text=str(tiempoPulso))
+        self.d2.config(text=str(dstMedida))
         if(self.grabarStatus):#chequear si se inicio grabacion
             self.grabar(valueRAW,valueTIME)#grabar dato
         
