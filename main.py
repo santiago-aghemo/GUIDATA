@@ -94,7 +94,7 @@ class GUI:
         valorS=str(valueRAW)#pasar valores del monitor serie a float
         valueTIME=str(time.strftime('%Y-%m-%d_%H-%M-%S'))#registramos cuando llego el valor
 
-        
+        #extraemos los datos del raw
         partes = valorS.split()
         tiempoPulso = float(partes[0])
         dstMedida = float(partes[1])
@@ -151,7 +151,7 @@ class GUI:
         #actualizar el valor mostrado en vivo
         self.d1.config(text=str(tiempoPulso))
         self.d2.config(text=str(dstMedida))
-        
+
         if(self.grabarStatus):#chequear si se inicio grabacion
             self.grabar(valueRAW,valueTIME)#grabar dato
         
