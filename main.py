@@ -151,6 +151,7 @@ class GUI:
         #actualizar el valor mostrado en vivo
         self.d1.config(text=str(tiempoPulso))
         self.d2.config(text=str(dstMedida))
+        
         if(self.grabarStatus):#chequear si se inicio grabacion
             self.grabar(valueRAW,valueTIME)#grabar dato
         
