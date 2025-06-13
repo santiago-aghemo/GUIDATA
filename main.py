@@ -38,12 +38,20 @@ matplotlib.rcParams.update({
 
 class GUI:
     def __init__(self,port='COM3', baudrate=9600):
+        
+
         self.grabarStatus = 0
         self.nombreArchivo = None
         self.root = tk.Tk() #este es la base de todo, sobre esta ventana van a estar todos los componentes
         self.ser = serial.Serial(port=port, baudrate=baudrate)
         self.root.configure(bg="#1e1e1e")
 
+        #configuramos el cronometro
+        self.inicio = time.time()
+        self.Cronometro = tk.Label(self.root, text="00:00.000", font=('Lucida Console', 25), bg="#1e1e1e", fg="#ffffff")
+        self.Cronometro.pack()
+
+        self.actualizarTime()
 
         #estilo de ttk personalizado
         self.style = ttk.Style()
@@ -97,7 +105,7 @@ class GUI:
         self.botonFrame.pack(pady=10)
 
         #vamos a hacer los botones para iniciar/parar la grabacion de datos
-        self.bR=tk.Button(self.botonFrame, text="GRABAR", font=('Lucida Console', 16), command=lambda: self.iniciar_grabar(f"session_{time.strftime('%Y-%m-%d_%H-%M-%S')}.txt", time.strftime('%Y-%m-%d_%H-%M-%S')))
+        self.bR=tk.Button(self.botonFrame, text="GRABAR", font=('Lucida Console', 16), command=lambda: self.iniciar_grabar(f"session_{time.strftime('%Y-%m-%d_%H-%M-%S')}.txt"))
         self.bR.pack(side="left", pady=5)
 
         self.bS=tk.Button(self.botonFrame, text="STOP", font=('Lucida Console', 16), command=self.parar_grabacion)
@@ -139,18 +147,24 @@ class GUI:
         dstMedida = float(partes[1])
 
         
-
+        #timepo actual
+        timepo_actual = time.time()-self.inicio
 
         #------------------ACTUALIZACION Y DETALLES DEL GRAFICO 1-----------------------------------
-        self.xdata1.append(self.counter)#agregamos a los valores de x el segundo actual(counter)
+        self.xdata1.append(timepo_actual)#agregamos a los valores de x el segundo actual(counter)
         self.yadata1.append(tiempoPulso)#agregamos el ultimo valor leido del monitor serie a los valores de y
         self.ax1.clear()#limpiamos los valores actuales
-
-        #esto es para mantener el grafico siempre mostrando una porcion pequeña de datos
+        
+        '''
+        #esto es para mantener el grafico siempre mostrando una porcion pequeña de datos(viejo)
         if self.counter < 30:
             self.ax1.set_xlim(1, 30)
         else:
             self.ax1.set_xlim(self.counter - 29, self.counter)
+        '''
+
+        self.ax1.set_xlim(max(0, self.xdata1[-1]-30), self.xdata1[-1]+1)#aca hice una modificacion del ajuste este que "mostraba siempre 30"
+        #ahora se va corriendo el cuadro, pero mantiene tambien la relacion del contador con el eje de las x: cuando el contador marca 20, en el eje de las x se marca 20
 
         #titulo del grafico
         self.ax1.set_title("GRAFICO", fontdict={"fontsize": 14, "fontweight": "bold", "family": "Lucida Console"})
@@ -165,15 +179,18 @@ class GUI:
         self.ax1.autoscale_view()
 
         #------------------ACTUALIZACION Y DETALLES DEL GRAFICO 2-----------------------------------
-        self.xdata2.append(self.counter)#agregamos a los valores de x el segundo actual(counter)
+        self.xdata2.append(timepo_actual)#agregamos a los valores de x el segundo actual(counter)
         self.yadata2.append(dstMedida)#agregamos el ultimo valor leido del monitor serie a los valores de y
         self.ax2.clear()#limpiamos los valores actuales
 
-        #esto es para mantener el grafico siempre mostrando una porcion pequeña de datos
+        '''
+        #esto es para mantener el grafico siempre mostrando una porcion pequeña de datos(viejo)
         if self.counter < 30:
             self.ax2.set_xlim(1, 30)
         else:
             self.ax2.set_xlim(self.counter - 29, self.counter)
+        '''
+        self.ax2.set_xlim(max(0, self.xdata2[-1]-30), self.xdata2[-1]+1)#ajuste asi el contador va al mismo ritmo que el cuadro
 
         #titulo del grafico
         self.ax2.set_title("GRAFICO", fontdict={"fontsize": 14, "fontweight": "bold", "family": "Lucida Console"})
@@ -195,25 +212,35 @@ class GUI:
         self.d2.config(text=str(dstMedida))
 
         if(self.grabarStatus):#chequear si se inicio grabacion
-            self.grabar(valueRAW,valueTIME)#grabar dato
+            self.grabar(valueRAW)#grabar dato
         
         self.root.after(1000,self.actualizar)#repetir cada 1 segundo
 
-    def iniciar_grabar(self,path,time):#iniciar la grabacion y definir el nombre del archivo de la sesion actual
+    def iniciar_grabar(self,path):#iniciar la grabacion y definir el nombre del archivo de la sesion actual
         if(self.grabarStatus==0):
             with open(path, 'w') as archivo:
-                archivo.write(time+': '+str(self.ser.readline().decode().strip())+'\n')
+                archivo.write(str(round(time.time()-self.inicio, 3))+': '+str(self.ser.readline().decode().strip())+'\n')
             self.nombreArchivo = path
             self.grabarStatus=1
         else:#si ya se inicio una grabacion, alertar al usuario
             messagebox.showinfo(message="YA SE HA INICIADO UNA GRABACION")
 
-    def grabar(self, value,time):#grabar dato actual
+    def grabar(self, value):#grabar dato actual
         with open(self.nombreArchivo,'a') as archivo:
-            archivo.write(time+': '+str(value)+'\n')
+            archivo.write(str(round(time.time()-self.inicio, 3))+': '+str(value)+'\n')
 
     def parar_grabacion(self):#cortar la grabacion
         self.nombreArchivo = None
         self.grabarStatus=0
+
+    def actualizarTime(self):
+        timepo_actual = time.time()-self.inicio
+
+        minutos = int(timepo_actual//60)
+        segundos = int(timepo_actual%60)
+        milesimas = int((timepo_actual-int(timepo_actual)) * 1000)
+
+        self.Cronometro.config(text=f"{minutos:02}:{segundos:02}.{milesimas:03}")
+        self.root.after(10, self.actualizarTime)
         
 GUI()
