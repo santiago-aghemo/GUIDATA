@@ -16,55 +16,87 @@
 
 import tkinter as tk #tkinter, las ventanas
 from tkinter import messagebox
+from tkinter import ttk
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg #esto es para convertir lo de matplot a tkinter
 import matplotlib.pyplot as plt #funciones para plotear
+import matplotlib
 import numpy as np #numpy, para tener funciones matematicas
 import time
 import serial #leer monitor serie
 
+#estilo del matplot
+matplotlib.rcParams.update({
+    'axes.facecolor': '#2e2e2e',
+    'axes.edgecolor': '#ffffff',
+    'axes.labelcolor': '#ffffff',
+    'figure.facecolor': '#2e2e2e',
+    'xtick.color': '#ffffff',
+    'ytick.color': '#ffffff',
+    'text.color': '#ffffff',
+    'axes.titlecolor': '#ffffff'
+})
 
 class GUI:
     def __init__(self,port='COM3', baudrate=9600):
         self.grabarStatus = 0
         self.nombreArchivo = None
         self.root = tk.Tk() #este es la base de todo, sobre esta ventana van a estar todos los componentes
-        #self.root.geometry('1000x1000')
         self.ser = serial.Serial(port=port, baudrate=baudrate)
+        self.root.configure(bg="#1e1e1e")
+
+
+        #estilo de ttk personalizado
+        self.style = ttk.Style()
+        self.style.theme_use('clam')
+
+        self.style.configure("TButton",
+                             background="#444",
+                             foreground="#fff",
+                             font=('Lucida Console', 12),
+                             padding=10)
+        self.style.map("TButton",
+                       background=[("active", "#666"), ("pressed", "#222")])
+        
 
         #configuracion de la tabla que va a mostrar los datos
-        self.dataGRID=tk.Frame(self.root)
-
+        self.dataGRID=tk.Frame(self.root, bg="#1e1e1e")
         self.dataGRID.columnconfigure(0,weight=3)
         self.dataGRID.columnconfigure(1,weight=1)
         self.dataGRID.rowconfigure(0, weight=1)
         self.dataGRID.rowconfigure(1, weight=1)
 
 
-        self.g1=tk.Label(self.dataGRID)
-        self.g1.grid(row=0,column=0,sticky='nsew')
+        self.g1 = tk.Label(self.dataGRID, bg="#1e1e1e")
+        self.g1.grid(row=0, column=0, sticky='nsew')
         
-        self.g2=tk.Label(self.dataGRID)
+        self.g2 = tk.Label(self.dataGRID, bg="#1e1e1e")
         self.g2.grid(row=1, column=0, sticky='nsew')
 
 
-        self.d1=tk.Label(self.dataGRID,text=" ", font=('Arial',16))
-        self.d1.grid(row=0,column=1,sticky='nsew')
+        self.d1 = tk.Label(self.dataGRID, text=" ", font=('Lucida Console', 25), bg="#1e1e1e", fg="#00ffcc")
+        self.d1.grid(row=0, column=1, sticky='nsew')
 
-        self.d1T=tk.Label(self.dataGRID,text="DATO ACTUAL")
-        self.d1T.grid(row=0,column=1, sticky='n')
+        self.d1T = tk.Label(self.dataGRID, text="DATO ACTUAL", bg="#1e1e1e", fg="#ccc", font=("Lucida Console", 20, "bold"))
+        self.d1T.grid(row=0, column=1, sticky='n')
 
-        self.d2=tk.Label(self.dataGRID,text=" ", font=('Arial',16))
-        self.d2.grid(row=1,column=1,sticky='nsew')
 
-        self.d2T=tk.Label(self.dataGRID,text="DATO ACTUAL")
-        self.d2T.grid(row=1,column=1,sticky='n')
+        self.d2 = tk.Label(self.dataGRID, text=" ", font=('Lucida Console', 25), bg="#1e1e1e", fg="#00ffcc")
+        self.d2.grid(row=1, column=1, sticky='nsew')
+
+        self.d2T = tk.Label(self.dataGRID, text="DATO ACTUAL", bg="#1e1e1e", fg="#ccc", font=("Lucida Console", 20, "bold"))
+        self.d2T.grid(row=1, column=1, sticky='n')
+
+        self.botonFrame = tk.Frame(self.root, bg="#1e1e1e")
+        self.botonFrame.pack(pady=10)
 
         #vamos a hacer los botones para iniciar/parar la grabacion de datos
-        self.bR=tk.Button(self.root, text="GRABAR", font=('Arial', 16), command=lambda: self.iniciar_grabar(f"session_{time.strftime('%Y-%m-%d_%H-%M-%S')}.txt", time.strftime('%Y-%m-%d_%H-%M-%S')))
-        self.bR.pack(anchor='sw')
-        
-        self.bS=tk.Button(self.root, text="STOP", font=('Arial', 16), command=self.parar_grabacion)
-        self.bS.pack(anchor='sw')
+        self.bR=tk.Button(self.botonFrame, text="GRABAR", font=('Lucida Console', 16), command=lambda: self.iniciar_grabar(f"session_{time.strftime('%Y-%m-%d_%H-%M-%S')}.txt", time.strftime('%Y-%m-%d_%H-%M-%S')))
+        self.bR.pack(side="left", pady=5)
+
+        self.bS=tk.Button(self.botonFrame, text="STOP", font=('Lucida Console', 16), command=self.parar_grabacion)
+        self.bS.pack(side="left", pady=5)
+
+
         self.xdata1, self.yadata1 = [],[]
         self.xdata2, self.yadata2 = [],[] #iniciamos los datos de x e y ambos en cero
         self.counter=0
@@ -74,14 +106,14 @@ class GUI:
         self.ax1.plot(self.counter,float(0))
         self.canva1 = FigureCanvasTkAgg(self.fig1,master=self.g1)
         self.canva1.draw()
-        self.canva1.get_tk_widget().pack()
+        self.canva1.get_tk_widget().pack(fill='both', expand=True)
         
         #creamos el grafico 2
         self.fig2,self.ax2 = plt.subplots()
         self.ax2.plot(self.counter, float(0))
         self.canva2 = FigureCanvasTkAgg(self.fig2,master=self.g2)
         self.canva2.draw()
-        self.canva2.get_tk_widget().pack()
+        self.canva2.get_tk_widget().pack(fill='both', expand=True)
         
         self.actualizar()
         self.dataGRID.pack(fill='both',expand=True)
@@ -105,7 +137,6 @@ class GUI:
         #------------------ACTUALIZACION Y DETALLES DEL GRAFICO 1-----------------------------------
         self.xdata1.append(self.counter)#agregamos a los valores de x el segundo actual(counter)
         self.yadata1.append(tiempoPulso)#agregamos el ultimo valor leido del monitor serie a los valores de y
-
         self.ax1.clear()#limpiamos los valores actuales
 
         #esto es para mantener el grafico siempre mostrando una porcion pequeña de datos
@@ -115,19 +146,20 @@ class GUI:
             self.ax1.set_xlim(self.counter - 29, self.counter)
 
         #titulo del grafico
-        self.ax1.set_title("GRAFICO")
+        self.ax1.set_title("GRAFICO", fontdict={"fontsize": 14, "fontweight": "bold", "family": "Lucida Console"})
         #nombres a los ejes
-        self.ax1.set_xlabel("Segundos")
-
+        self.ax1.set_xlabel("Segundos", fontdict={"fontsize": 14, "fontweight": "bold", "family": "Lucida Console"})
         #trazamos el grafico
-        self.ax1.plot(self.xdata1,self.yadata1,'b-o')
-
+        self.ax1.plot(self.xdata1, self.yadata1, '-', color='#00ffff')
+        self.ax1.grid(True, linestyle='--', linewidth=0.5, color='#888')
         self.canva1.draw()
+
+        self.ax1.relim()
+        self.ax1.autoscale_view()
 
         #------------------ACTUALIZACION Y DETALLES DEL GRAFICO 2-----------------------------------
         self.xdata2.append(self.counter)#agregamos a los valores de x el segundo actual(counter)
         self.yadata2.append(dstMedida)#agregamos el ultimo valor leido del monitor serie a los valores de y
-
         self.ax2.clear()#limpiamos los valores actuales
 
         #esto es para mantener el grafico siempre mostrando una porcion pequeña de datos
@@ -137,14 +169,17 @@ class GUI:
             self.ax2.set_xlim(self.counter - 29, self.counter)
 
         #titulo del grafico
-        self.ax2.set_title("GRAFICO")
+        self.ax2.set_title("GRAFICO", fontdict={"fontsize": 14, "fontweight": "bold", "family": "Lucida Console"})
         #nombres a los ejes
-        self.ax2.set_xlabel("Segundos")
-
+        self.ax2.set_xlabel("Segundos", fontdict={"fontsize": 14, "fontweight": "bold", "family": "Lucida Console"})
+        self.ax2.set_ylabel("Distancia", fontdict={"fontsize": 14, "fontweight": "bold", "family": "Lucida Console"})
         #trazamos el grafico
-        self.ax2.plot(self.xdata2,self.yadata2,'b-o')
-
+        self.ax2.plot(self.xdata2, self.yadata2, '-', color='#ff00aa')
+        self.ax2.grid(True, linestyle='--', linewidth=0.5, color='#888')
         self.canva2.draw()
+
+        self.ax2.relim()
+        self.ax2.autoscale_view()
 
         self.counter+=1#sumamos uno al contador 
 
