@@ -60,31 +60,38 @@ class GUI:
 
         #configuracion de la tabla que va a mostrar los datos
         self.dataGRID=tk.Frame(self.root, bg="#1e1e1e")
-        self.dataGRID.columnconfigure(0,weight=3)
-        self.dataGRID.columnconfigure(1,weight=1)
+        self.dataGRID.columnconfigure(0,weight=1)
+        self.dataGRID.columnconfigure(1,weight=10)
+        self.dataGRID.columnconfigure(2, weight=10)
         self.dataGRID.rowconfigure(0, weight=1)
         self.dataGRID.rowconfigure(1, weight=1)
 
 
         self.g1 = tk.Label(self.dataGRID, bg="#1e1e1e")
-        self.g1.grid(row=0, column=0, sticky='nsew')
+        self.g1.grid(row=0, column=1, sticky='nsew')
         
         self.g2 = tk.Label(self.dataGRID, bg="#1e1e1e")
-        self.g2.grid(row=1, column=0, sticky='nsew')
+        self.g2.grid(row=1, column=1, sticky='nsew')
 
 
+        self.d1T = tk.Label(self.dataGRID, text="Tiempo del pulso", font=('Lucida Console', 25), bg="#1e1e1e", fg="#ffffff")
+        self.d1T.grid(row=0, column=0, sticky='nsew')
+        
         self.d1 = tk.Label(self.dataGRID, text=" ", font=('Lucida Console', 25), bg="#1e1e1e", fg="#00ffcc")
-        self.d1.grid(row=0, column=1, sticky='nsew')
+        self.d1.grid(row=0, column=2, sticky='nsew')
 
-        self.d1T = tk.Label(self.dataGRID, text="DATO ACTUAL", bg="#1e1e1e", fg="#ccc", font=("Lucida Console", 20, "bold"))
-        self.d1T.grid(row=0, column=1, sticky='n')
+        self.d1D = tk.Label(self.dataGRID, text="DATO ACTUAL", bg="#1e1e1e", fg="#ccc", font=("Lucida Console", 20, "bold"))
+        self.d1D.grid(row=0, column=2, sticky='n')
 
+
+        self.d2T = tk.Label(self.dataGRID, text="Distancia Medida", font=('Lucida Console', 25), bg="#1e1e1e", fg="#ffffff")
+        self.d2T.grid(row=1, column=0, sticky='nsew')
 
         self.d2 = tk.Label(self.dataGRID, text=" ", font=('Lucida Console', 25), bg="#1e1e1e", fg="#00ffcc")
-        self.d2.grid(row=1, column=1, sticky='nsew')
+        self.d2.grid(row=1, column=2, sticky='nsew')
 
-        self.d2T = tk.Label(self.dataGRID, text="DATO ACTUAL", bg="#1e1e1e", fg="#ccc", font=("Lucida Console", 20, "bold"))
-        self.d2T.grid(row=1, column=1, sticky='n')
+        self.d2D = tk.Label(self.dataGRID, text="DATO ACTUAL", bg="#1e1e1e", fg="#ccc", font=("Lucida Console", 20, "bold"))
+        self.d2D.grid(row=1, column=2, sticky='n')
 
         self.botonFrame = tk.Frame(self.root, bg="#1e1e1e")
         self.botonFrame.pack(pady=10)
