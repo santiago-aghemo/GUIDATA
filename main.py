@@ -62,7 +62,7 @@ class GUI:
         self.dataGRID=tk.Frame(self.root, bg="#1e1e1e")
         self.dataGRID.columnconfigure(0,weight=1)
         self.dataGRID.columnconfigure(1,weight=10)
-        self.dataGRID.columnconfigure(2, weight=10)
+        self.dataGRID.columnconfigure(2, weight=5)
         self.dataGRID.rowconfigure(0, weight=1)
         self.dataGRID.rowconfigure(1, weight=1)
 
